@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Bloom · Vocabulary Quiz</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #302944;
+            background:
+                radial-gradient(circle at top left, #e5ddff, transparent 55%),
+                radial-gradient(circle at bottom right, #ffe4ec, transparent 55%),
+                #f7f5fc;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 560px;
+            padding: 36px;
+            background: white;
+            border: 1px solid #eee9f7;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(75, 52, 118, 0.10);
+        }
+
+        .brand {
+            margin: 0 0 8px;
+            color: #7954bf;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            margin: 12px 0 28px;
+            color: #777084;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #777084;
+            font-size: 13px;
+        }
+
+        .progress-track {
+            height: 8px;
+            overflow: hidden;
+            background: #eee9f7;
+            border-radius: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: #9270d5;
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            margin: 28px 0 22px;
+            padding: 26px 16px;
+            text-align: center;
+            background: #f7f3ff;
+            border-radius: 20px;
+        }
+
+        .question-label {
+            margin: 0 0 12px;
+            color: #777084;
+            font-size: 14px;
+        }
+
+        #word {
+            margin: 0;
+            color: #6742aa;
+            font-size: 32px;
+        }
+
+        .listen-button {
+            margin-top: 18px;
+            padding: 10px 18px;
+            color: #6742aa;
+            background: white;
+            border: 1px solid #d8c9ef;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .listen-button:hover {
+            background: #eee5ff;
+            transform: translateY(-2px);
+        }
+
+        #choices {
+            display: grid;
+            gap: 12px;
+        }
+
+        .choice {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            padding: 15px 18px;
+            text-align: left;
+            font-size: 16px;
+            color: #40364f;
+            background: white;
+            border: 2px solid #eee9f5;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s,
+                        transform 0.2s;
+        }
+
+        .choice:hover:not(:disabled) {
+            background: #faf7ff;
+            border-color: #b59adf;
+            transform: translateY(-2px);
+        }
+
+        button:focus-visible {
+            outline: 3px solid #6742aa;
+            outline-offset: 4px;
+        }
+
+        .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            color: #7954bf;
+            background: #f0eafa;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .choice:disabled {
+            cursor: default;
+        }
+
+        .choice.wrong {
+            background: #fff3f3;
+            border-color: #e6b4b4;
+            color: #8b4949;
+        }
+
+        .choice.correct {
+            background: #edf9f2;
+            border-color: #8bc5a3;
+            color: #286344;
+        }
+
+        .choice.muted {
+            opacity: 0.55;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            padding: 16px 18px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        #feedback.hint {
+            background: #fff7e6;
+            color: #795616;
+        }
+
+        #feedback.success {
+            background: #edf9f2;
+            color: #286344;
+        }
+
+        #feedback.answer {
+            background: #f2edfc;
+            color: #6742aa;
+        }
+
+        .next-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            color: white;
+            background: #7954bf;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .next-button:hover {
+            background: #6742aa;
+        }
+
+        .footer {
+            margin: 24px 0 0;
+            text-align: center;
+            font-size: 12px;
+            color: #88808f;
+        }
+
+        .completion {
+            padding: 30px 0 10px;
+            text-align: center;
+        }
+
+        .completion-icon {
+            font-size: 54px;
+        }
+
+        .completion h2 {
+            margin: 18px 0 12px;
+            font-size: 28px;
+        }
+
+        .completion p {
+            color: #777084;
+            line-height: 1.7;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            .app {
+                padding: 26px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            #word {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app">
+        <p class="brand">WORD BLOOM</p>
+        <h1>Little words, big progress.</h1>
+
+        <p class="subtitle">
+            Learn five useful expressions, one step at a time.
+        </p>
+
+        <section id="quiz" aria-label="Vocabulary quiz">
+            <div class="progress-label">
+                <span id="progress"></span>
+                <span>5 expressions</span>
+            </div>
+
+            <div class="progress-track">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+
+            <div class="question-card">
+                <p class="question-label">
+                    What does this expression mean?
+                </p>
+
+                <h2 id="word"></h2>
+
+                <button
+                    type="button"
+                    class="listen-button"
+                    onclick="speakWord()"
+                    aria-label="Listen to the expression"
+                >
+                    🔊 Listen
+                </button>
+            </div>
+
+            <div id="choices"></div>
+
+            <div
+                id="feedback"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></div>
+
+            <button
+                id="nextButton"
+                class="next-button"
+                onclick="nextQuestion()"
+                hidden
+            >
+                Next expression →
+            </button>
+        </section>
+
+        <section id="completion" class="completion" hidden>
+            <div class="completion-icon" aria-hidden="true">🌷</div>
+
+            <h2>You did it!</h2>
+
+            <p>
+                You practiced all five expressions.<br>
+                Keep going — your vocabulary is growing!
+            </p>
+
+            <button class="next-button" onclick="restartQuiz()">
+                Practice again ↻
+            </button>
+        </section>
+
+        <p class="footer">
+            Take your time. Every try helps you learn.
+        </p>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                word: "take part in",
+                choices: ["Participate in", "Avoid", "Watch"],
+                correct: "Participate in",
+                hint: "You take part in a school play when you are one of the actors.",
+                explanation: '"Take part in" means to join an activity.'
+            },
+            {
+                word: "look after",
+                choices: ["Search for", "Take care of", "Look at"],
+                correct: "Take care of",
+                hint: "You look after a dog by feeding it and keeping it safe.",
+                explanation: '"Look after" means to care for someone or something.'
+            },
+            {
+                word: "give up",
+                choices: ["Give a gift", "Start again", "Stop trying"],
+                correct: "Stop trying",
+                hint: "The puzzle was difficult, but she did not give up. She kept trying.",
+                explanation: '"Give up" means to stop trying to do something.'
+            },
+            {
+                word: "find out",
+                choices: ["Discover", "Forget", "Lose"],
+                correct: "Discover",
+                hint: "You ask your teacher to find out when the test will be.",
+                explanation: '"Find out" means to learn or discover information.'
+            },
+            {
+                word: "put off",
+                choices: ["Finish", "Postpone", "Wear"],
+                correct: "Postpone",
+                hint: "Because of the rain, we put off the picnic until next week.",
+                explanation: '"Put off" means to delay something until a later time.'
+            }
+        ];
+
+        let currentQuestion = 0;
+        let incorrectAttempts = 0;
+        let answered = false;
+        let currentSpeech = null;
+
+        function stopSpeech() {
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakWord() {
+            if (!("speechSynthesis" in window)) {
+                alert("이 브라우저는 음성 재생을 지원하지 않아요.");
+                return;
+            }
+
+            if (currentQuestion >= questions.length) {
+                return;
+            }
+
+            stopSpeech();
+
+            currentSpeech = new SpeechSynthesisUtterance(
+                questions[currentQuestion].word
+            );
+
+            currentSpeech.lang = "en-US";
+            currentSpeech.rate = 0.8;
+            currentSpeech.pitch = 1;
+            currentSpeech.volume = 1;
+
+            // 사용 가능한 미국 영어 목소리를 우선 선택해요.
+            const voices = window.speechSynthesis.getVoices();
+            const englishVoice =
+                voices.find(function(voice) {
+                    return voice.lang.toLowerCase() === "en-us";
+                }) ||
+                voices.find(function(voice) {
+                    return voice.lang.toLowerCase().startsWith("en");
+                });
+
+            if (englishVoice) {
+                currentSpeech.voice = englishVoice;
+            }
+
+            window.speechSynthesis.speak(currentSpeech);
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+
+            incorrectAttempts = 0;
+            answered = false;
+
+            document.getElementById("progress").innerText =
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+
+            document.getElementById("progressFill").style.width =
+                `${currentQuestion / questions.length * 100}%`;
+
+            document.getElementById("word").innerText = question.word;
+
+            const feedback = document.getElementById("feedback");
+            feedback.innerText = "";
+            feedback.className = "";
+            feedback.hidden = true;
+
+            document.getElementById("nextButton").hidden = true;
+
+            const choices = document.getElementById("choices");
+            choices.innerHTML = "";
+
+            question.choices.forEach(function(choice, index) {
+                const button = document.createElement("button");
+                button.className = "choice";
+
+                const letter = document.createElement("span");
+                letter.className = "letter";
+                letter.innerText = ["A", "B", "C"][index];
+                letter.setAttribute("aria-hidden", "true");
+
+                const text = document.createElement("span");
+                text.innerText = choice;
+
+                button.appendChild(letter);
+                button.appendChild(text);
+
+                button.onclick = function() {
+                    checkAnswer(choice, button);
+                };
+
+                choices.appendChild(button);
+            });
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById("feedback");
+            feedback.innerText = message;
+            feedback.className = type;
+            feedback.hidden = false;
+        }
+
+        function checkAnswer(answer, button) {
+            if (answered) {
+                return;
+            }
+
+            const question = questions[currentQuestion];
+
+            if (answer === question.correct) {
+                button.classList.add("correct");
+
+                showFeedback(
+                    "✓ Correct! Well done! " + question.explanation,
+                    "success"
+                );
+
+                finishQuestion();
+            } else {
+                incorrectAttempts++;
+                button.classList.add("wrong");
+                button.disabled = true;
+
+                if (incorrectAttempts === 1) {
+                    showFeedback(
+                        "💡 Hint: " + question.hint + " Try again!",
+                        "hint"
+                    );
+                } else {
+                    showFeedback(
+                        "The correct answer is " + question.correct +
+                        ". " + question.explanation,
+                        "answer"
+                    );
+
+                    const buttons =
+                        document.querySelectorAll("#choices button");
+
+                    buttons.forEach(function(choiceButton, index) {
+                        if (question.choices[index] === question.correct) {
+                            choiceButton.classList.add("correct");
+                        }
+                    });
+
+                    finishQuestion();
+                }
+            }
+        }
+
+        function finishQuestion() {
+            answered = true;
+
+            document.querySelectorAll("#choices button").forEach(
+                function(button) {
+                    button.disabled = true;
+
+                    if (!button.classList.contains("correct") &&
+                        !button.classList.contains("wrong")) {
+                        button.classList.add("muted");
+                    }
+                }
+            );
+
+            document.getElementById("progressFill").style.width =
+                `${(currentQuestion + 1) / questions.length * 100}%`;
+
+            const nextButton = document.getElementById("nextButton");
+
+            nextButton.innerText =
+                currentQuestion === questions.length - 1
+                    ? "Finish practice ✓"
+                    : "Next expression →";
+
+            nextButton.hidden = false;
+        }
+
+        function nextQuestion() {
+            if (!answered) {
+                return;
+            }
+
+            stopSpeech();
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                document.getElementById("quiz").hidden = true;
+                document.getElementById("completion").hidden = false;
+            }
+        }
+
+        function restartQuiz() {
+            stopSpeech();
+            currentQuestion = 0;
+
+            document.getElementById("completion").hidden = true;
+            document.getElementById("quiz").hidden = false;
+
+            showQuestion();
+        }
+
+        showQuestion();
+    </script>
+</body>
+</html>
